@@ -6,7 +6,7 @@ This project implements an end-to-end data pipeline in Snowflake to enable seman
 
 The project consists of two main components:
 1. **Data Ingestion and Transformation**: Implemented using Snowflake's SQL and Snowpark worksheets for Extract, Load, and Transform (ELT) processes.
-2. **Semantic Search**: Utilizes pre-trained language models and Snowflake's native capabilities to provide semantic search functionality.
+2. **Semantic Search**: Utilizes pre-trained language model "all-MiniLM-L6-v2" and Snowflake's native capabilities to provide semantic search functionality.
 
 ## Stored Procedures
 
