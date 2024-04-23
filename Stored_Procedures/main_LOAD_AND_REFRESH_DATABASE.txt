@@ -1,4 +1,4 @@
-# Create a stored procedure that runs the whole pipeline (4 sub-procedures) for updating the document and vector database
+# Create a stored procedure that runs the whole pipeline (6 sub-procedures) for updating the document and vector database
 # this assumes that the latest dataset (csv) has been uploaded into the stage for processing
 
 
@@ -7,7 +7,7 @@ RETURNS VARCHAR NOT NULL
 LANGUAGE SQL
 AS
 BEGIN
-  CALL LOAD_CRM_MINUTES_RAW();
+  CALL LOAD_RAW_DOCUMENTS();
   CALL RAW_TO_CURATED();
   CALL CURATED_TO_CHUNKS();
   CALL CHUNK_TO_TOKENS();
