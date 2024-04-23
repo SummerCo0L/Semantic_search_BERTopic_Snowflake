@@ -34,17 +34,17 @@ This directory contains stored procedures related to running similarity searches
 
 ### Main Scripts
 
-- `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for loading and refreshing the database.
-- `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running similarity searches.
+- `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for running all the 6 sub-procedures sequentially to load and refresh the database
+- `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running all the 4 sub-procedures of similarity search
 
 ## User-Defined Functions
 
 The `User_Defined_Functions` directory contains user-defined functions used in the Snowflake environment.
 
-- `udf_CHUNK_TEXT.txt`: Function to chunk text.
-- `udf_MiniLM_L6_v2_embedding.txt`: Function to embed text using MiniLM-L6-v2.
-- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing.
-- `udf_sklearn_cosine_similarity.txt`: Function to compute cosine similarity using scikit-learn.
+- `udf_CHUNK_TEXT.txt`: Function to chunk text into smaller paragraphs/ sentences
+- `udf_MiniLM_L6_v2_embedding.txt`: Function to embed text into vectors using MiniLM-L6-v2.
+- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing/ tokenizing.
+- `udf_sklearn_cosine_similarity.txt`: Function to compute cosine similarity score using scikit-learn.
 
 ## Usage
 
