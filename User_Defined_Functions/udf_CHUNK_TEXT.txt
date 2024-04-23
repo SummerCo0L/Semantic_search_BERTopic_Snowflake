@@ -1,4 +1,4 @@
-# Creates a UDF that performs chunks document text into smaller paragraphs for processing/ embedding
+# Creates a UDF that chunks document text into smaller paragraphs for processing/ embedding
 
 
 # The Snowpark package is required for Python Worksheets. 
