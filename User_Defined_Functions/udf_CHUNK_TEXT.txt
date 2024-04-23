@@ -1,3 +1,6 @@
+# Creates a UDF that performs chunks document text into smaller paragraphs for processing/ embedding
+
+
 # The Snowpark package is required for Python Worksheets. 
 # You can add more packages by selecting them using the Packages control and then importing them.
 
@@ -15,7 +18,7 @@ def main(session: snowpark.Session):
             words = text.split()
             return len(words)
     
-        def process(self, report_title, text): 
+        def process(self, document_title, text): 
             text_raw = []
             text_raw.append(text) 
     
@@ -31,7 +34,7 @@ def main(session: snowpark.Session):
             df = pd.DataFrame(chunks, columns=['chunks', 'meta'])
             
             # Prepend each chunk with the corresponding value from the "report_title" parameter
-            # df['chunks'] = report_title + ': ' + df['chunks'].astype(str)
+            # df['chunks'] = document_title + ': ' + df['chunks'].astype(str)
             df['chunks'] = df['chunks'].apply(lambda x: x[1])
             
             yield from df.itertuples(index=False, name=None)
@@ -50,7 +53,7 @@ def main(session: snowpark.Session):
         name='CHUNK_TEXT',
         replace=True, 
         packages=['pandas', 'langchain'],
-        stage_location='@"EDMS_UAT"."SANDBOX"."SANDBOX2"/CRM_Minutes/Functions'
+        stage_location='@"Path_to_your_stage_functions_folder"'
     )
 
 
