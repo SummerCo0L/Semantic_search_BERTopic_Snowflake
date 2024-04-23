@@ -16,7 +16,7 @@ The `Stored_Procedures` directory contains the stored procedures used in the Sno
 
 This directory contains stored procedures related to loading and refreshing the database.
 
-- `SP1.1_load_to_table_from_stage.txt`: Script to load data into tables from staging area.
+- `SP1.1_load_to_table_from_stage.txt`: Script to load data into Snowflake table from staging area.
 - `SP1.2_snowpark_transformations.txt`: Script for Snowpark transformations.
 - `SP1.3_chunking_text.txt`: Script for chunking text.
 - `SP1.4_embedding_chunks.txt`: Script for embedding chunks.
@@ -27,10 +27,10 @@ This directory contains stored procedures related to loading and refreshing the 
 
 This directory contains stored procedures related to running similarity searches.
 
-- `SP2.1_INSERT_QUERY.txt`: Script to insert queries.
-- `SP2.2_GET_SIMILARITY.txt`: Script to get similarity.
-- `SP2.3_GET_TOKEN_SIMILARITY.txt`: Script to get token similarity.
-- `SP2.4_GET_TOP_5_TOKENS.txt`: Script to get top 5 tokens.
+- `SP2.1_INSERT_QUERY.txt`: Script to insert queries into Snowflake table.
+- `SP2.2_GET_SIMILARITY.txt`: Script to get similarity score between query and every chunk.
+- `SP2.3_GET_TOKEN_SIMILARITY.txt`: Script to get token similarity score between query and every token.
+- `SP2.4_GET_TOP_5_TOKENS.txt`: Script to get top 5 tokens for each chunk.
 
 ### Main Scripts
 
