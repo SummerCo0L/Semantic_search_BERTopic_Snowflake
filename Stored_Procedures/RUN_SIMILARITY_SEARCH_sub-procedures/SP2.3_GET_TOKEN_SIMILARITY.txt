@@ -1,0 +1,16 @@
+# Create a stored procedure that refrshes the token-score table with the new query vector and token embeddings
+
+
+CREATE OR REPLACE PROCEDURE GET_TOKEN_SIMILARITY()
+RETURNS STRING
+LANGUAGE SQL
+AS
+BEGIN
+    DELETE FROM "8_TOKENS_SIMILARITY_SCORE";
+    INSERT INTO "8_TOKENS_SIMILARITY_SCORE"
+        SELECT 
+            t.TOKEN,
+            sklearn_cosine_similarity(t.VECTOR, q.vector) AS cosine_similarity
+        FROM "7_TOKEN_EMBEDDINGS" t
+        CROSS JOIN "0_QUERY_TABLE" q;
+END;

@@ -1,0 +1,43 @@
+# Creates a stored procedure that copies raw data (csv) from stage to snowflake table
+
+
+
+CREATE OR REPLACE PROCEDURE LOAD_RAW_DOCUMENTS()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+DECLARE
+    row_counts INT default 0;
+BEGIN
+-- Remove all existing data in "1_RAW_TABLE"
+    TRUNCATE TABLE "1_RAW_TABLE";
+    
+-- The Copy command will not load older stage files that were loaded before, by default
+    COPY INTO "path_to_your_raw_table"."1_RAW_TABLE"
+        FROM '@"Path_to_your_stage_folder_containing_raw_files"/'
+        FILE_FORMAT = (
+            TYPE=CSV,
+            SKIP_HEADER=1,
+            FIELD_DELIMITER=',',
+            RECORD_DELIMITER = '\n',
+            TRIM_SPACE=TRUE,
+            FIELD_OPTIONALLY_ENCLOSED_BY='"',
+            REPLACE_INVALID_CHARACTERS=TRUE,
+            DATE_FORMAT=AUTO,
+            TIME_FORMAT=AUTO,
+            TIMESTAMP_FORMAT=AUTO
+            )
+        ON_ERROR=ABORT_STATEMENT;
+    
+    create or replace stream STAGE_DATA_RAW_STREAM on stage "RAW_FILE_FOLDER";
+
+    select count(*) into :row_counts from "1_RAW_TABLE";
+    
+    RETURN 'Completed. Rows in dataset 1_RAW_TABLE:' || row_counts::STRING;
+END;
+
+
+
+
+-- https://medium.com/@fengliplatform/get-stored-procedure-results-from-last-query-id-7c79b6905fcb

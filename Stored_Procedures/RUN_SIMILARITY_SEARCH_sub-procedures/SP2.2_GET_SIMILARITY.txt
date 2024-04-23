@@ -1,0 +1,17 @@
+# Create a stored procedure that refrshes the chunk-score table with the new query vector and chunk embeddings
+
+
+CREATE OR REPLACE PROCEDURE GET_SIMILARITY()
+RETURNS STRING
+LANGUAGE SQL
+AS
+BEGIN
+    TRUNCATE "5_CHUNKS_SIMILARITY_SCORE";
+    INSERT INTO "5_CHUNKS_SIMILARITY_SCORE"
+        SELECT 
+            c.CHUNK_ID, 
+            sklearn_cosine_similarity(c.VECTOR, q.VECTOR) AS cosine_similarity
+        FROM "4_CHUNK_EMBEDDINGS" c
+        CROSS JOIN "0_QUERY_TABLE" q;
+    RETURN 'Success';
+END;

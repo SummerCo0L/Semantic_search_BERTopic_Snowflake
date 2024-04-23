@@ -1,0 +1,37 @@
+# Creates the stored procedure that tokenizes each chunk into tokens
+
+
+CREATE OR REPLACE PROCEDURE CHUNK_TO_TOKENS()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+BEGIN
+    TRUNCATE "6_CHUNK_TOKENS";
+    
+    INSERT INTO "6_CHUNK_TOKENS"
+    WITH TOKEN_ARRAY_TABLE AS
+    (
+        SELECT 
+            CHUNK_ID, 
+            PY_SPACY(CHUNK) AS token_array
+        FROM "3_CHUNKS_TABLE"
+    ),
+    DISTINCT_TOKENS AS
+    (
+    SELECT DISTINCT
+        CHUNK_ID,
+        LOWER(FLATTEN_TOKEN.value) AS lower_token
+    FROM
+        TOKEN_ARRAY_TABLE,
+        LATERAL FLATTEN(input => token_array) AS FLATTEN_TOKEN
+    )
+    SELECT
+        CHUNK_ID,
+        CAST(lower_token AS VARIANT) AS TOKEN
+    FROM
+        DISTINCT_TOKENS;
+END;
+
+
+-- https://docs.snowflake.com/en/sql-reference/functions/flatten#examples

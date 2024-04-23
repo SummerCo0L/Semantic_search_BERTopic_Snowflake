@@ -1,0 +1,59 @@
+Create a stored procedure using snowpark worksheet to transform raw data to curated
+
+
+create or replace procedure RAW_TO_CURATED()
+    returns String
+    language python
+    runtime_version = 3.11
+    packages =('snowflake-snowpark-python')
+    handler = 'main'
+as
+$$
+import snowflake.snowpark as snowpark
+from snowflake.snowpark.functions import col, to_date, when, row_number
+from snowflake.snowpark.window import Window
+    
+
+def main(session: snowpark.Session): 
+    
+    tableName = 'EDMS_UAT.SANDBOX."1_RAW_TABLE"'
+    dataframe = session.table(tableName)
+
+    # remove streaming variables (NO LONGER NEEDED)
+    # columns_to_drop = ["METADATA$ACTION", "METADATA$ISUPDATE", "METADATA$ROW_ID"]
+    # dataframe = dataframe.drop(*columns_to_drop)
+    
+    # Rename and define datatypes for all fields
+    dataframe = dataframe.withColumnRenamed("Document Title", "Document_title").withColumn("Document_title", col("Document_title").cast("STRING"))    
+    dataframe = dataframe.withColumnRenamed("Date of Document", "Date_of_document").withColumn("Date_of_document", to_date(col("Date_of_document"), "DD/MM/YYYY"))
+    dataframe = dataframe.withColumnRenamed("Document Text", "Document_text").withColumn("Document_text", col("Document_text").cast("STRING"))
+    
+    # Drop nulls or na
+    columns_to_drop_null_or_na = ["Document_text"]
+    dataframe = dataframe.dropna(subset= columns_to_drop_null_or_na)
+    
+    # Drop duplicates of meeting_note
+    columns_to_deduplicate = ["Document_text"]
+    dataframe = dataframe.drop_duplicates(columns_to_deduplicate)
+
+    # Add a new column "doc_id" using ROW_NUMBER() window function
+    dataframe = dataframe.withColumn("doc_id", row_number().over(Window.order_by(col("Date_of_document").asc())))
+
+    # clear all data from 2_CURATED_TABLE
+    clear_df = session.sql(""" TRUNCATE "2_CURATED_TABLE" """)
+    clear_df.collect()
+    
+    # APPEND over table
+    dataframe.write.mode("append").save_as_table('"path_to_your_curated_table"."2_CURATED_TABLE"')
+    
+    return ""
+    
+$$;
+
+
+
+
+-- Reference: 
+-- https://docs.snowflake.com/en/developer-guide/snowpark/python/working-with-dataframes
+-- https://docs.snowflake.com/en/developer-guide/snowpark/reference/python/latest/api/snowflake.snowpark.DataFrame.withColumn';
+-- https://docs.snowflake.com/en/developer-guide/snowpark/reference/python/latest/api/snowflake.snowpark.Window

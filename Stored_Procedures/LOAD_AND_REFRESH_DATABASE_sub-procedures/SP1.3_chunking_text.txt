@@ -1,0 +1,35 @@
+# As some of the document text is long, chunking strategy is used to chunk them into small paragraphs
+# be sure to create the CHUNK_TEXT UDF first before running this stored procedure
+
+
+CREATE OR REPLACE PROCEDURE CURATED_TO_CHUNKS()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+BEGIN
+    TRUNCATE "3_CHUNKS_TABLE";
+    
+    INSERT INTO "3_CHUNKS_TABLE"
+    WITH CHUNK_TABLE AS 
+    (
+        SELECT
+            DOC_ID,
+            func.*
+        FROM (
+            SELECT
+                DOC_ID,
+                REPORT_TITLE,
+                MEETING_NOTE
+            FROM "2_CURATED_TABLE"
+        ) AS raw,
+        TABLE(CHUNK_TEXT(DOCUMENT_TITLE, DOCUMENT_TEXT)) AS func
+        ORDER BY DOC_ID ASC, META ASC
+    )
+    SELECT 
+        DOC_ID,
+        ROW_NUMBER() OVER (ORDER BY DOC_ID ASC, META ASC) AS CHUNK_ID,
+        CHUNK, 
+        META
+    FROM CHUNK_TABLE;
+END;

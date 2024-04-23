@@ -1,0 +1,17 @@
+# Creating the cosine_similarity UDF with SQL worksheet
+
+
+CREATE OR REPLACE FUNCTION sklearn_cosine_similarity(x ARRAY, y ARRAY) 
+RETURNS FLOAT
+LANGUAGE PYTHON
+runtime_version=3.8
+packages = ('scikit-learn')
+handler='udf'
+AS
+$$
+from sklearn.metrics.pairwise import cosine_similarity
+
+def udf(x, y):
+    score = cosine_similarity([x], [y])
+    return score
+$$; 

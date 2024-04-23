@@ -1,0 +1,24 @@
+# Creates the stored procedure that generates the embeddings for all unique tokens from all the chunks
+
+
+CREATE OR REPLACE PROCEDURE TOKENS_TO_EMBEDDINGS()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+BEGIN
+    TRUNCATE "7_TOKEN_EMBEDDINGS";
+    INSERT INTO "7_TOKEN_EMBEDDINGS"
+    SELECT 
+        TOKEN,
+        MINILM_L6_V2_EMBEDDING(TOKEN) AS VECTOR
+    FROM (
+        SELECT DISTINCT TOKEN AS TOKEN
+        FROM "6_CHUNK_TOKENS"
+    ) AS unique_tokens;
+END;
+
+
+
+
+

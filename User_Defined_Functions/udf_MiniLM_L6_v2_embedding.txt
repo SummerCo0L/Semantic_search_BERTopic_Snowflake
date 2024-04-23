@@ -1,0 +1,48 @@
+# Creating the text embedding UDF using SQL worksheet
+# ensure that you the model has been uploaded to your stage as a joblib file before running this code
+
+
+CREATE OR REPLACE FUNCTION MiniLM_L6_v2_embedding("X" STRING)
+  RETURNS Array
+  LANGUAGE PYTHON
+  RUNTIME_VERSION = '3.8'
+  IMPORTS = ('@"Path_to_your_stage"/MiniLM_L6_v2.joblib')
+  PACKAGES = ('cachetools==4.2.2', 'sentence-transformers==2.2.2', 'transformers==4.32.1', 'joblib==1.2.0', 'numpy')
+  HANDLER = 'udf'
+AS 
+$$
+import os
+import joblib
+import cachetools
+import sys
+from sentence_transformers import SentenceTransformer
+import transformers
+import numpy as np
+
+
+# Caching the model
+# When we need to use the model, we must first decompress it, which can be time-consuming. 
+# To speed up this process, we can utilize the cachetools Python library. 
+# This library stores the outcomes of function calls in a cache and retrieves them when the same inputs are used again.
+
+@cachetools.cached(cache={})
+def read_model():
+   import_dir = sys._xoptions.get("snowflake_import_directory")
+   if import_dir:
+       # Load the model
+       return joblib.load(f'{import_dir}/MiniLM_L6_v2.joblib')
+
+# See how we can optimize this further       
+def udf(sentences):
+    model = read_model()
+    tokens = sentences.split(',')
+    embeddings = [model.encode(token) for token in tokens]
+    avg_embedding = np.mean(embeddings, axis=0)
+    return avg_embedding
+
+
+$$;
+
+
+
+-- https://docs.snowflake.com/en/sql-reference/sql/copy-files#label-copy-files-examples

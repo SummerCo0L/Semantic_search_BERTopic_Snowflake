@@ -1,0 +1,63 @@
+# The Snowpark package is required for Python Worksheets. 
+# You can add more packages by selecting them using the Packages control and then importing them.
+
+import snowflake.snowpark as snowpark
+from snowflake.snowpark.functions import col
+from snowflake.snowpark.types import StringType, StructField, StructType
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+import pandas as pd
+import spacy
+
+def main(session: snowpark.Session): 
+    
+    class text_chunker:
+        def word_count(self, text):  
+            words = text.split()
+            return len(words)
+    
+        def process(self, report_title, text): 
+            text_raw = []
+            text_raw.append(text) 
+    
+            text_splitter = RecursiveCharacterTextSplitter(
+                separators=["\n"],  
+                chunk_size=150,     
+                chunk_overlap=20,   
+                length_function=self.word_count,  
+                add_start_index=True
+            )
+    
+            chunks = text_splitter.create_documents(text_raw)
+            df = pd.DataFrame(chunks, columns=['chunks', 'meta'])
+            
+            # Prepend each chunk with the corresponding value from the "report_title" parameter
+            # df['chunks'] = report_title + ': ' + df['chunks'].astype(str)
+            df['chunks'] = df['chunks'].apply(lambda x: x[1])
+            
+            yield from df.itertuples(index=False, name=None)
+
+
+    schema = StructType([
+         StructField("chunk", StringType()),
+         StructField("meta", StringType()),
+    ])
+    
+    session.udtf.register( 
+        handler=text_chunker,
+        output_schema=schema, 
+        input_types=[StringType(), StringType()],
+        is_permanent=True, 
+        name='CHUNK_TEXT',
+        replace=True, 
+        packages=['pandas', 'langchain'],
+        stage_location='@"EDMS_UAT"."SANDBOX"."SANDBOX2"/CRM_Minutes/Functions'
+    )
+
+
+    return ""
+
+
+    
+# References:
+# https://medium.com/@thechosentom/rag-made-simple-with-snowflake-cortex-74d1df5143fd
+# https://docs.snowflake.com/en/developer-guide/snowpark/reference/python/latest/api/snowflake.snowpark.udf.UDFRegistration

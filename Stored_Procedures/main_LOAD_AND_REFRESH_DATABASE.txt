@@ -1,0 +1,17 @@
+# Create a stored procedure that runs the whole pipeline (4 sub-procedures) for updating the document and vector database
+# this assumes that the latest dataset (csv) has been uploaded into the stage for processing
+
+
+CREATE OR REPLACE PROCEDURE LOAD_AND_REFRESH_DATABASE()
+RETURNS VARCHAR NOT NULL
+LANGUAGE SQL
+AS
+BEGIN
+  CALL LOAD_CRM_MINUTES_RAW();
+  CALL RAW_TO_CURATED();
+  CALL CURATED_TO_CHUNKS();
+  CALL CHUNK_TO_TOKENS();
+  CALL CHUNK_TO_EMBEDDINGS();
+  CALL TOKENS_TO_EMBEDDINGS();
+  RETURN 'Finished refreshing database.';
+END;

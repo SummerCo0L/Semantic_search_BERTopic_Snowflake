@@ -1,0 +1,19 @@
+# Create stored procedure of ingesting the query that user inputs into a snowflake table
+
+CREATE OR REPLACE PROCEDURE INSERT_QUERY(QUERY VARCHAR)
+RETURNS STRING
+LANGUAGE SQL
+AS
+BEGIN
+    DELETE FROM "0_QUERY_TABLE";
+    INSERT INTO "0_QUERY_TABLE"
+    SELECT
+        :QUERY AS QUERY,
+        MINILM_L6_V2_EMBEDDING(:QUERY) AS VECTOR; # minilm is a udf that needs to be created before running this stored procedure
+    RETURN 'Query inserted: ' || QUERY || '.';
+END;
+
+
+
+
+-- https://docs.snowflake.com/en/developer-guide/stored-procedure/stored-procedures-snowflake-scripting#using-arguments-passed-to-a-stored-procedure

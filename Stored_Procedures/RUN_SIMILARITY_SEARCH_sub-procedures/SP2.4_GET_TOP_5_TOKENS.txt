@@ -1,0 +1,29 @@
+# Creates a procedure that captures the top 5 similar tokens for each chunk
+
+
+CREATE OR REPLACE PROCEDURE GET_TOP_5_TOKENS()
+RETURNS STRING
+LANGUAGE SQL
+AS
+BEGIN
+    DELETE FROM "9_TOP_FIVE_TOKENS";
+    
+    INSERT INTO "9_TOP_FIVE_TOKENS"
+    WITH ranked_tokens AS (
+        SELECT 
+            c.CHUNK_ID,
+            c.TOKEN,
+            AVG(t.COSINE_SIMILARITY) AS AVG_COSINE_SIMILARITY,
+            ROW_NUMBER() OVER (PARTITION BY c.CHUNK_ID ORDER BY AVG(t.COSINE_SIMILARITY) DESC) AS token_rank
+        FROM "6_CHUNK_TOKENS" c
+        JOIN "8_TOKENS_SIMILARITY_SCORE" t ON c.TOKEN = t.TOKEN
+        GROUP BY c.CHUNK_ID, c.TOKEN
+    )
+    SELECT CHUNK_ID, TOKEN, AVG_COSINE_SIMILARITY, TOKEN_RANK
+    FROM ranked_tokens
+    WHERE token_rank <= 5
+    ORDER BY CHUNK_ID, TOKEN_RANK;
+    
+    create or replace stream "path_to_your_stream".TOKEN_SIMILARITY_STREAM on table "8_TOKENS_SIMILARITY_SCORE";
+    RETURN 'Success';
+END;

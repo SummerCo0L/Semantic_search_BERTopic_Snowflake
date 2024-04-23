@@ -1,0 +1,14 @@
+# Create a stored procedure that runs the whole pipeline (4 sub-procedures) for similarity search
+
+
+CREATE OR REPLACE PROCEDURE RUN_SIMILARITY_SEARCH(QUERY VARCHAR)
+RETURNS VARCHAR NOT NULL
+LANGUAGE SQL
+AS
+BEGIN
+  CALL INSERT_QUERY(:QUERY);
+  CALL GET_SIMILARITY();
+  CALL GET_TOKEN_SIMILARITY();
+  CALL GET_TOP_5_TOKENS();
+  RETURN 'Finished calling stored procedures with query/s: "' || QUERY || '".;
+END;

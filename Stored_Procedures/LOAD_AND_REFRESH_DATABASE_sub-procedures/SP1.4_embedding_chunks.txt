@@ -1,0 +1,14 @@
+# Creates the stored procedure that generates embeddings of each chunk using the UDF minilm....
+# ensure that the udf (embedding model) is created first before running this stored procedure
+
+CREATE OR REPLACE PROCEDURE CHUNK_TO_EMBEDDINGS()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+BEGIN
+    TRUNCATE "4_CHUNK_EMBEDDINGS";
+    INSERT INTO "4_CHUNK_EMBEDDINGS"
+    SELECT CHUNK_ID, MINILM_L6_V2_EMBEDDING(CHUNK) AS VECTOR
+    FROM "3_CHUNKS_TABLE";
+END;
