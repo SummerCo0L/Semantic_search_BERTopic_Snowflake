@@ -1,0 +1,25 @@
+CREATE OR REPLACE PROCEDURE ENTITY_EXTRACTION()
+  RETURNS STRING
+  LANGUAGE SQL
+  EXECUTE AS CALLER
+AS
+BEGIN
+    CREATE OR REPLACE VIEW "12_MY_VIEW" AS
+    WITH org_extracted AS (
+        SELECT
+            "CHUNK_ID",
+            value AS org_data
+        FROM
+            "11_MY_VIEW",
+            LATERAL FLATTEN(input => NER)
+        WHERE
+            value[0] = 'ORG'
+    )
+    SELECT
+        org_extracted."CHUNK_ID",
+        org_values.value::string AS ORG
+    FROM
+        org_extracted,
+        LATERAL FLATTEN(input => org_extracted.org_data[1]) AS org_values;
+
+END;
