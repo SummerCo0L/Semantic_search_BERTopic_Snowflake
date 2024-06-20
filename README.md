@@ -12,7 +12,7 @@ The project consists of a few main components:
 
 
 ## Architecture
-![Pipelines in a glance] (https://github.com/SummerCo0L/Semantic_search_BERTopic_Snowflake/blob/main/Snowflake_Pipeline.png?raw=true)
+![Pipelines in a glance](https://github.com/SummerCo0L/Semantic_search_BERTopic_Snowflake/blob/main/Snowflake_Pipeline.png?raw=true)
 
 
 ## Stored Procedures
