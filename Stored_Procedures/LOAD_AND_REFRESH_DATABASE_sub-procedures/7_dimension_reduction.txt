@@ -1,0 +1,60 @@
+CREATE OR REPLACE procedure DIMENSION_REDUCTION(components INT DEFAULT 5)
+    returns String
+    language python
+    runtime_version = 3.8
+    packages =('snowflake-snowpark-python', 'umap-learn')
+    handler = 'main'
+as
+$$
+import snowflake.snowpark as snowpark
+from snowflake.snowpark.functions import col
+from snowflake.snowpark.types import StructType, StructField
+import umap.umap_ as umap
+import pandas as pd
+import numpy as np
+import ast
+
+
+def main(session: snowpark.Session, components: int): 
+    # Your code goes here, inside the "main" handler.
+    tableName = "4_CHUNK_EMBEDDINGS"'
+    dataframe = session.table(tableName)
+
+    # Convert Snowflake DataFrame to Pandas DataFrame
+    df = dataframe.toPandas()
+    embeddings = df['VECTOR']
+ 
+    # convert string to numeric
+    embeddings2 = embeddings.apply(ast.literal_eval)
+
+    embeddings_list = embeddings2.tolist()
+
+    # Convert the Python list of lists into a NumPy array
+    embeddings_array = np.array(embeddings_list)
+
+    umap_model = umap.UMAP(n_neighbors=15, n_components=components, min_dist=0.0)
+    reduced_embeddings = umap_model.fit_transform(embeddings_array)
+
+    reduced_embeddings_list = reduced_embeddings.tolist()
+    
+    df['REDUCED_EMBEDDINGS'] = reduced_embeddings_list
+    df['VECTOR'] = embeddings_list
+    
+    # Convert the Pandas DataFrame back to a Snowpark table
+    snowpark_df = session.create_dataframe(data=df)
+
+    # Now you can cast the new column to ARRAY
+    snowpark_df = snowpark_df.withColumn("VECTOR", col("VECTOR").cast("ARRAY"))
+    snowpark_df = snowpark_df.withColumn("REDUCED_EMBEDDINGS", col("REDUCED_EMBEDDINGS").cast("ARRAY"))
+
+    # clear all data from 10_SProc_umap table
+    clear_df = session.sql(""" TRUNCATE "10_SProc_umap" """)
+    clear_df.collect()
+
+    # WRITE over table
+    snowpark_df.write.mode("overwrite").save_as_table('EDMS_UAT.SANDBOX."10_SProc_umap"')
+
+    
+    return ""
+
+$$;
