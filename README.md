@@ -24,6 +24,7 @@ This directory contains stored procedures related to loading and refreshing the 
 - `SP1.4_embedding_chunks.txt`: Script for embedding chunks.
 - `SP1.5_tokenizing_chunks.txt`: Script for tokenizing chunks.
 - `SP1.6_embedding_tokens.txt`: Script for embedding tokens.
+- 'SP1.7_dimension_reduction.txt': Script for reducing vector dimensions
 
 ### RUN_SIMILARITY_SEARCH_sub-procedures
 
@@ -33,11 +34,13 @@ This directory contains stored procedures related to running similarity searches
 - `SP2.2_GET_SIMILARITY.txt`: Script to get similarity score between query and every chunk.
 - `SP2.3_GET_TOKEN_SIMILARITY.txt`: Script to get token similarity score between query and every token.
 - `SP2.4_GET_TOP_5_TOKENS.txt`: Script to get top 5 tokens for each chunk.
+- 'SP2.5_VIEW_CREATION.txt`: Script to create a temporary table for subsequent topic modelling step
+- 'SP2.6_ENTITY_EXTRACTION.txt`: Script to extract only the organization entities from the NER field
 
 ### Main Scripts
 
-- `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for running all the 6 sub-procedures sequentially to load and refresh the database
-- `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running all the 4 sub-procedures of similarity search
+- `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for running all the 5 sub-procedures sequentially to load and refresh the database
+- `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running all the 7 sub-procedures of similarity search
 - `main_BERTopic_Modelling.txt`: Main script for performing topic modeling using the BERTopic framework.
 
 ## User-Defined Functions
