@@ -5,10 +5,10 @@ It empowers users to efficiently retrieve and analyze documents using keyword/s,
 
 ## Overview
 
-The project consists of two main components:
+The project consists of a few main components:
 1. **Data Ingestion and Transformation**: Implemented using Snowflake's SQL and Snowpark worksheets for Extract, Load, and Transform (ELT) processes.
 2. **Semantic Search**: Utilizes pre-trained language model "all-MiniLM-L6-v2" for text embedding and computing cosine-similarity scores.
-3. **Topic Modelling**: Utilizes the BERTopic framework to identify and extract hidden themes and topics from the document corpus.
+3. **Topic Modelling**: Utilizes the BERTopic framework/ model to identify and extract hidden themes and topics from the document corpus.
 
 ## Stored Procedures
 
@@ -24,7 +24,7 @@ This directory contains stored procedures related to loading and refreshing the 
 - `SP1.4_embedding_chunks.txt`: Script for embedding chunks.
 - `SP1.5_tokenizing_chunks.txt`: Script for tokenizing chunks.
 - `SP1.6_embedding_tokens.txt`: Script for embedding tokens.
-- 'SP1.7_dimension_reduction.txt': Script for reducing vector dimensions
+- `SP1.7_dimension_reduction.txt`: Script for reducing vector dimensions
 
 ### RUN_SIMILARITY_SEARCH_sub-procedures
 
