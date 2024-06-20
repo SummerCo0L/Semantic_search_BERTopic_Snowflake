@@ -1,6 +1,6 @@
 # Snowflake Data Pipeline for Semantic Search and Topic Modelling (BERTopic)
 
-This project implements an end-to-end data pipeline in Snowflake to enable semantic search and topic modeling. 
+This project implements an end-to-end data pipeline in Snowflake to enable semantic search and topic modeling on documents.
 It empowers users to efficiently retrieve and analyze documents using keyword/s, and to uncover hidden themes and topics within the documents.
 
 ## Overview
