@@ -60,7 +60,7 @@ The `User_Defined_Functions` directory contains user-defined functions used in t
 2. **Execution Steps**:
     - Open Snowflake's SQL or Snowpark worksheet.
     - Copy the contents of each script and execute them sequentially to create the sub-procedures/ procedures
-    - To run the main procedures just use the call function, e.g.:
-          - CALL UPLOAD_MINUTES()
-          - CALL RUN_PIPELINE('QUERY')
-          - CALL TOPIC_MODEL('limit')
+    - To run the main procedures just use the call function
+      - CALL UPLOAD_MINUTES()
+      - CALL RUN_PIPELINE('QUERY')
+      - CALL TOPIC_MODEL('limit')
