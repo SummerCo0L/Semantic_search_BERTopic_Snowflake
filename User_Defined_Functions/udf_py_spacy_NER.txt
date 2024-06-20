@@ -1,0 +1,83 @@
+CREATE OR REPLACE FUNCTION PY_SPACY_NER(str string)
+RETURNS ARRAY
+LANGUAGE PYTHON
+RUNTIME_VERSION = 3.8
+HANDLER = 'func'
+PACKAGES = ('spacy')
+IMPORTS = ('@"Path_to_your_stage"/en_core_web_sm.zip')
+AS
+$$
+import fcntl
+import os
+import spacy
+import sys
+import threading
+import zipfile
+from spacy.language import Language
+from spacy.pipeline import EntityRuler
+
+
+# File lock class for synchronizing write access to /tmp.
+class FileLock:
+    def __enter__(self):
+       self._lock = threading.Lock()
+       self._lock.acquire()
+       self._fd = open('/tmp/lockfile.LOCK', 'w+')
+       fcntl.lockf(self._fd, fcntl.LOCK_EX)
+
+    def __exit__(self, type, value, traceback):
+       self._fd.close()
+       self._lock.release()
+
+# Get the location of the import directory. Snowflake sets the import
+# directory location so code can retrieve the location via sys._xoptions.
+IMPORT_DIRECTORY_NAME = "snowflake_import_directory"
+import_dir = sys._xoptions[IMPORT_DIRECTORY_NAME]
+
+# Get the path to the ZIP file and set the location to extract to.
+zip_file_path = import_dir + "en_core_web_sm.zip"
+extracted = '/tmp/en_core_web_sm'
+
+# Extract the contents of the ZIP. This is done under the file lock
+# to ensure that only one worker process unzips the contents.
+with FileLock():
+    if not os.path.isdir(extracted + '/en_core_web_sm/en_core_web_sm-3.7.1'):
+       with zipfile.ZipFile(zip_file_path, 'r') as myzip:
+          myzip.extractall(extracted)
+
+# Load the model from the extracted file.
+nlp = spacy.load(extracted + "/en_core_web_sm/en_core_web_sm-3.7.1")
+
+# Define the custom EntityRuler component
+@Language.factory("custom_entity_ruler")
+def create_entity_ruler(nlp, name):
+    ruler = EntityRuler(nlp)
+    patterns = [
+        {"label": "ORG", "pattern": "Facebook"},
+        {"label": "GPE", "pattern": "UK"}
+    ]
+    ruler.add_patterns(patterns)
+    return ruler
+
+# Add the custom entity ruler to the pipeline
+nlp.add_pipe("custom_entity_ruler", before="ner")
+
+def func(text):
+    doc = nlp(text)
+    entities = {}
+    for ent in doc.ents:
+        if ent.label_ not in entities:
+            entities[ent.label_] = set()
+        entities[ent.label_].add(ent.text)
+    
+    # Converting the sets to lists and the dictionary to a list of tuples
+    result = [(label, list(ents)) for label, ents in entities.items()]
+    
+    return result
+$$;
+
+
+-- References
+-- https://docs.snowflake.com/en/developer-guide/udf/python/udf-python-examples#processing-multiple-files
+-- https://community.snowflake.com/s/article/Importing-3rd-party-Python-packages-containing-non-Python-files-using-Snowflake-stages-when-creating-Python-UDFs
+-- https://www.educative.io/answers/how-to-remove-stop-words-using-spacy-in-python
