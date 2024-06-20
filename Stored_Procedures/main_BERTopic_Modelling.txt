@@ -1,4 +1,5 @@
 -- does topic modelling on a filtered set of documents where cosine similarity scores are above a user-defined threshold
+-- to be run only after running similarity search main procedure
 
 create or replace procedure TOPIC_MODEL(limit FLOAT DEFAULT 0, min_cluster_size INT DEFAULT 10)
     returns String
