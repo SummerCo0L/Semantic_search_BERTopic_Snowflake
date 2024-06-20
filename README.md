@@ -7,7 +7,7 @@ It empowers users to efficiently retrieve and analyze documents using keywords, 
 
 The project consists of two main components:
 1. **Data Ingestion and Transformation**: Implemented using Snowflake's SQL and Snowpark worksheets for Extract, Load, and Transform (ELT) processes.
-2. **Semantic Search**: Utilizes pre-trained language model "all-MiniLM-L6-v2" and Snowflake's native capabilities to provide semantic search functionality.
+2. **Semantic Search**: Utilizes pre-trained language model "all-MiniLM-L6-v2" for text embedding and computing cosine-similarity scores.
 3. **Topic Modelling**: Utilizes the BERTopic framework to identify and extract hidden themes and topics from the document corpus.
 
 ## Stored Procedures
@@ -45,7 +45,7 @@ The `User_Defined_Functions` directory contains user-defined functions used in t
 
 - `udf_CHUNK_TEXT.txt`: Function to chunk text into smaller paragraphs/ sentences
 - `udf_MiniLM_L6_v2_embedding.txt`: Function to embed text into vectors using MiniLM-L6-v2.
-- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing/ tokenizing.
+- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing, tokenizing and Named Entity Recognition.
 - `udf_sklearn_cosine_similarity.txt`: Function to compute cosine similarity score using scikit-learn.
 
 ## Usage
