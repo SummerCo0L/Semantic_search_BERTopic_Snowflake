@@ -10,6 +10,11 @@ The project consists of a few main components:
 2. **Semantic Search**: Utilizes pre-trained language model "all-MiniLM-L6-v2" for text embedding and computing cosine-similarity scores.
 3. **Topic Modelling**: Utilizes the BERTopic framework/ model to identify and extract hidden themes and topics from the document corpus.
 
+
+## Architecture
+![Pipelines in a glance] (https://github.com/SummerCo0L/Semantic_search_BERTopic_Snowflake/blob/main/Snowflake_Pipeline.png?raw=true)
+
+
 ## Stored Procedures
 
 The `Stored_Procedures` directory contains the stored procedures used in the Snowflake environment.
