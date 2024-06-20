@@ -37,7 +37,7 @@ This directory contains stored procedures related to running similarity searches
 - `SP2.5_VIEW_CREATION.txt`: Script to create a temporary table for subsequent topic modelling step
 - `SP2.6_ENTITY_EXTRACTION.txt`: Script to extract only the organization entities from the NER field
 
-### Main Scripts
+### Main Scripts/ Procedures
 
 - `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for running all the 5 sub-procedures sequentially to load and refresh the database
 - `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running all the 7 sub-procedures of similarity search
@@ -59,7 +59,7 @@ The `User_Defined_Functions` directory contains user-defined functions used in t
 
 2. **Execution Steps**:
     - Open Snowflake's SQL or Snowpark worksheet.
-    - Copy the contents of each script and execute them sequentially to create the sub-procedures/ procedures
+    - Copy the contents of each script and execute them sequentially to create the sub-procedures/ functions/ main-procedures
     - To run the main procedures just use the call function
       - CALL UPLOAD_MINUTES()
       - CALL RUN_PIPELINE('QUERY')
