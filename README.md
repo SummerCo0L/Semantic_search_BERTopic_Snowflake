@@ -34,8 +34,8 @@ This directory contains stored procedures related to running similarity searches
 - `SP2.2_GET_SIMILARITY.txt`: Script to get similarity score between query and every chunk.
 - `SP2.3_GET_TOKEN_SIMILARITY.txt`: Script to get token similarity score between query and every token.
 - `SP2.4_GET_TOP_5_TOKENS.txt`: Script to get top 5 tokens for each chunk.
-- 'SP2.5_VIEW_CREATION.txt`: Script to create a temporary table for subsequent topic modelling step
-- 'SP2.6_ENTITY_EXTRACTION.txt`: Script to extract only the organization entities from the NER field
+- `SP2.5_VIEW_CREATION.txt`: Script to create a temporary table for subsequent topic modelling step
+- `SP2.6_ENTITY_EXTRACTION.txt`: Script to extract only the organization entities from the NER field
 
 ### Main Scripts
 
