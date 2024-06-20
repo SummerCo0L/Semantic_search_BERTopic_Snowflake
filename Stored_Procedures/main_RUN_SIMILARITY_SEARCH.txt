@@ -1,4 +1,4 @@
-# Create a stored procedure that runs the whole pipeline (4 sub-procedures) for similarity search
+-- Create a stored procedure that runs the whole pipeline (6 sub-procedures) for similarity search
 
 
 CREATE OR REPLACE PROCEDURE RUN_SIMILARITY_SEARCH(QUERY VARCHAR)
