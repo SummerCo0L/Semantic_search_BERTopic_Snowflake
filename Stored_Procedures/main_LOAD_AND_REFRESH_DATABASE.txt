@@ -1,5 +1,5 @@
-# Create a stored procedure that runs the whole pipeline (6 sub-procedures) for updating the document and vector database
-# this assumes that the latest dataset (csv) has been uploaded into the stage for processing
+-- Create a stored procedure that runs the whole pipeline (7 sub-procedures) for updating the document and vector database
+-- this assumes that the latest dataset (csv) has been uploaded into the stage for processing
 
 
 CREATE OR REPLACE PROCEDURE LOAD_AND_REFRESH_DATABASE()
