@@ -11,5 +11,6 @@ BEGIN
   CALL GET_TOKEN_SIMILARITY();
   CALL GET_TOP_5_TOKENS();
   CALL VIEW_CREATION();
+  CALL ENTITY_EXTRACTION();
   RETURN 'Finished calling stored procedures with query/s: "' || QUERY || '".;
 END;
