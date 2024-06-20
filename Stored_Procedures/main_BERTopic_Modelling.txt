@@ -1,4 +1,4 @@
-# does topic modelling on a filtered set of documents where cosine similarity scores are above a user-defined threshold
+-- does topic modelling on a filtered set of documents where cosine similarity scores are above a user-defined threshold
 
 create or replace procedure TOPIC_MODEL(limit FLOAT DEFAULT 0, min_cluster_size INT DEFAULT 10)
     returns String
@@ -43,7 +43,7 @@ def read_model():
 
 def main(session: snowpark.Session, limit:float, min_cluster_size:int):
 
-    tableName = 'path_to_your_raw_table"."1_RAW_TABLE"'
+    tableName = "11_MY_VIEW"'
     dataframe = session.table(tableName)
     
     # Limit the dataframe based on parameter value
