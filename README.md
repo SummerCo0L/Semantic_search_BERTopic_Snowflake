@@ -38,6 +38,7 @@ This directory contains stored procedures related to running similarity searches
 
 - `main_LOAD_AND_REFRESH_DATABASE.txt`: Main script for running all the 6 sub-procedures sequentially to load and refresh the database
 - `main_RUN_SIMILARITY_SEARCH.txt`: Main script for running all the 4 sub-procedures of similarity search
+- `main_BERTopic_Modelling.txt`: Main script for performing topic modeling using the BERTopic framework.
 
 ## User-Defined Functions
 
@@ -45,8 +46,9 @@ The `User_Defined_Functions` directory contains user-defined functions used in t
 
 - `udf_CHUNK_TEXT.txt`: Function to chunk text into smaller paragraphs/ sentences
 - `udf_MiniLM_L6_v2_embedding.txt`: Function to embed text into vectors using MiniLM-L6-v2.
-- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing, tokenizing and Named Entity Recognition.
+- `udf_py_spacy.txt`: Function using Python's spaCy library for text processing and tokenizing.
 - `udf_sklearn_cosine_similarity.txt`: Function to compute cosine similarity score using scikit-learn.
+- `udf_py_spacy_NER.txt`: Function using Python's spaCy library for Named Entity Recognition.
 
 ## Usage
 
