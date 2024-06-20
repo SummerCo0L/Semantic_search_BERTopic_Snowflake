@@ -1,0 +1,142 @@
+create or replace procedure TOPIC_MODEL(limit FLOAT DEFAULT 0, min_cluster_size INT DEFAULT 10)
+    returns String
+    language python
+    runtime_version = 3.8
+    IMPORTS = ('@"Path_to_your_stage"/MiniLM_L6_v2.joblib')
+    packages =(
+        'bertopic==0.15.0',
+        'hdbscan==0.8.33',
+        'snowflake-snowpark-python==*',
+        'cachetools==4.2.2', 'sentence-transformers==2.2.2', 'transformers==4.32.1', 'joblib==1.2.0'
+    )
+    handler = 'main'
+AS
+
+$$
+import snowflake.snowpark as snowpark
+from snowflake.snowpark.functions import col
+import ast
+import numpy as np
+import pandas as pd
+from bertopic import BERTopic
+from bertopic.representation import KeyBERTInspired
+from hdbscan import HDBSCAN
+from sklearn.feature_extraction.text import CountVectorizer
+from bertopic.vectorizers import ClassTfidfTransformer
+from sklearn.feature_extraction import text
+import os
+import joblib
+import cachetools
+import sys
+from sentence_transformers import SentenceTransformer
+import transformers
+import numpy as np
+
+@cachetools.cached(cache={})
+def read_model():
+   import_dir = sys._xoptions.get("snowflake_import_directory")
+   if import_dir:
+       # Load the model
+       return joblib.load(f'{import_dir}/MiniLM_L6_v2.joblib')
+
+def main(session: snowpark.Session, limit:float, min_cluster_size:int):
+
+    tableName = 'path_to_your_raw_table"."1_RAW_TABLE"'
+    dataframe = session.table(tableName)
+    
+    # Limit the dataframe based on parameter value
+    filtered_df = dataframe.filter(col("COSINE_SIMILARITY") >= limit)
+    
+    # Extract DOCS into list
+    docs = filtered_df.select("CHUNK").collect()
+    docs = [row["CHUNK"] for row in docs]
+
+    # Extract embeddings into list
+    embeddings = filtered_df.select("REDUCED_EMBEDDINGS").collect()
+    embeddings = [ast.literal_eval(row["REDUCED_EMBEDDINGS"]) for row in embeddings]
+    embeddings_array = np.array(embeddings)
+    
+    # Extract unique entity terms from NER column
+    def extract_unique_entity_terms(df):
+        unique_entity_terms = set()
+        for row in df.collect():
+            entity_list = ast.literal_eval(row["NER"])
+            for entity_info in entity_list:
+                if len(entity_info) > 1:
+                    entity_terms = entity_info[1]
+                    unique_entity_terms.update(entity_terms)
+        return unique_entity_terms
+
+    unique_entity_terms = extract_unique_entity_terms(filtered_df)
+    
+    # Generate custom stop words
+    custom_stop_words = set(text.ENGLISH_STOP_WORDS)
+    for term in unique_entity_terms:
+        custom_stop_words.add(term)
+        custom_stop_words.add(term.lower())
+
+    # Add additional stopwords to the custom stop words
+    additional_stopwords = ["changes", "engaging", "scheduling", "dsta"]
+    for word in additional_stopwords:
+        custom_stop_words.add(word)
+    
+    custom_stop_words = list(custom_stop_words)
+    
+    # Save custom stop words to a Snowflake table
+    stop_words_df = session.create_dataframe([(word,) for word in custom_stop_words], schema=["STOP_WORD"])
+    stop_words_table_name = 'path_to_your_table"."CUSTOM_STOP_WORDS"'
+    stop_words_df.write.mode("overwrite").save_as_table(stop_words_table_name)
+
+    # Configure BERTopic parameters
+    hdbscan_model = HDBSCAN(min_cluster_size=min_cluster_size, metric="euclidean", cluster_selection_method="eom", prediction_data=False)
+    vectorizer_model = CountVectorizer(stop_words=custom_stop_words, ngram_range=(1, 3), min_df=10, max_df=0.3)
+    ctfidf_model = ClassTfidfTransformer(reduce_frequent_words=True)
+    representation_model = KeyBERTInspired()
+    
+    # Initialize BERTopic model
+    topic_model = BERTopic(top_n_words=10,
+                           umap_model=None,
+                           hdbscan_model=hdbscan_model, 
+                           vectorizer_model=vectorizer_model,
+                           ctfidf_model=ctfidf_model,
+                           representation_model=representation_model,
+                           embedding_model=read_model()
+                           )
+                           
+    # Fit BERTopic model and transform documents
+    topics, probs = topic_model.fit_transform(docs, embeddings_array)
+    
+    # Retrieve document information from BERTopic model
+    results = topic_model.get_document_info(docs)
+    
+    # Convert results to Snowpark DataFrame
+    results_df = session.create_dataframe(results)
+    
+    # Define the chunk table name
+    chunk_table = 'path_to_your_table."3_CHUNKS_TABLE"'
+    chunk_df = session.table(chunk_table)
+    
+    # Perform the join operation
+    joined_table = results_df.join(
+        chunk_df,
+        col("\"Document\"") == col("CHUNK"),
+        "left_outer"
+    ).select(
+        results_df["*"],
+        chunk_df["DOC_ID"],
+        chunk_df["CHUNK_ID"],
+        chunk_df["CHUNK"],
+        chunk_df["NER"],
+        chunk_df["META"]
+    )
+    
+    # # Truncate the existing data in BERTopic table
+    session.sql('TRUNCATE TABLE 'path_to_your_table."13_BERTopic"')
+
+    # # Save joined_table to 13_BERTopic table
+    joined_table.write.mode("overwrite").save_as_table('path_to_your_table."13_BERTopic"')
+
+    
+    return ""
+
+$$;
